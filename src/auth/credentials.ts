@@ -46,13 +46,9 @@ export class CredentialsManager {
   private validate(): void {
     const errors: string[] = [];
 
-    // Validate AWS credentials
-    if (!this.credentials.aws.accessKeyId) {
-      errors.push('AWS_ACCESS_KEY_ID is required');
-    }
-    if (!this.credentials.aws.secretAccessKey) {
-      errors.push('AWS_SECRET_ACCESS_KEY is required');
-    }
+    // AWS credentials are optional: modern SP-API accepts LWA-only auth
+    // (no AWS Signature V4 required). See sp-api-client.ts for the
+    // conditional signing logic.
 
     // Validate LWA credentials
     if (!this.credentials.lwa.clientId) {

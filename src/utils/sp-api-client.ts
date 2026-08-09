@@ -139,19 +139,22 @@ export class SPAPIClient {
       ...options.headers,
     };
 
-    // Sign request with AWS Signature V4
-    const signedHeaders = signRequest(
-      {
-        method: options.method,
-        url: url.toString(),
-        headers,
-        body: options.body ? JSON.stringify(options.body) : undefined,
-      },
-      this.awsCredentials
-    );
+    // Sign request with AWS Signature V4 only if AWS credentials are configured.
+    // Modern SP-API accepts LWA-only auth (x-amz-access-token header alone).
+    if (this.awsCredentials.accessKeyId && this.awsCredentials.secretAccessKey) {
+      const signedHeaders = signRequest(
+        {
+          method: options.method,
+          url: url.toString(),
+          headers,
+          body: options.body ? JSON.stringify(options.body) : undefined,
+        },
+        this.awsCredentials
+      );
 
-    // Merge signed headers
-    Object.assign(headers, signedHeaders);
+      // Merge signed headers
+      Object.assign(headers, signedHeaders);
+    }
 
     try {
       const response: AxiosResponse<T> = await axios({
